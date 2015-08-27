@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from kivy.config import Config
-#Config.set("graphics", "fullscreen", "auto")
+Config.set("graphics", "fullscreen", "auto")
 from kivy.graphics import Color, Rectangle
 from kivy.app import App
 from kivy.uix.widget import Widget
@@ -11,6 +11,9 @@ from kivy.core.window import Window, Keyboard
 
 vanster = Keyboard.string_to_keycode(None, "left")
 hoger = Keyboard.string_to_keycode(None, "right")
+ner = Keyboard.string_to_keycode(None, "down")
+upp = Keyboard.string_to_keycode(None, "up")
+enhet = 1
 
 
 def flytta_pos(sak, sidled, hojdled):
@@ -27,7 +30,7 @@ class Sak(Widget):
         self.bind(pos=self.update_rect)
         self.bind(size=self.update_rect)
         self.pos = plats
-        self.size = storlek
+        self.size = (storlek[0] * enhet, storlek[1] * enhet)
 
     def update_rect(self, *args):
         self.rect.pos = self.pos
@@ -38,28 +41,40 @@ class Bil(Sak):
     def flytta(self, knappar):
         for knapp in knappar:
             if knapp == vanster:
-                flytta_pos(self, -3, 0)
-                break
+                flytta_pos(self, -enhet * 3, 0)
             if knapp == hoger:
-                flytta_pos(self, 3, 0)
-                break
-
+                flytta_pos(self, enhet * 3, 0)
+            if knapp == upp:
+                flytta_pos(self, enhet * 0, enhet * 5)
+            if knapp == ner:
+                flytta_pos(self, enhet * 0, enhet * -4)
 
 class Hinder(Sak):
     def flytta(self, knappar):
-        flytta_pos(self, 0, -3)
+        flytta_pos(self, enhet * 4, enhet * -9)
 
 
 class Bilspel(Widget):
     def __init__(self):
         Widget.__init__(self)
         self.knappar = list()
-
         Window.bind(on_key_down=self.knapp_ner, on_key_up=self.knapp_upp)
+        self.bind(size=self.rita)
 
-        self.bil = Bil(plats=(400, 0), storlek=(50, 100))
+    def rita(self, *args):
+        global enhet
+        bredd = self.size[0]
+        hojd = self.size[1]
+        enhet = hojd / 1000.0
+        self.canvas.clear()
+        self.bil = Bil(plats=(bredd / 2, 0), storlek=(50, 100))
         self.add_widget(self.bil)
-        self.hinder = Hinder(plats=(400, 600), storlek=(100, 100))
+        self.nytthinder()
+
+    def nytthinder(self):
+        bredd = self.size[0]
+        hojd = self.size[1]
+        self.hinder = Hinder(plats=(bredd / 2, hojd), storlek=(100, 100))
         self.add_widget(self.hinder)
 
     def flytta(self, tid):
@@ -67,7 +82,12 @@ class Bilspel(Widget):
             sak.flytta(self.knappar)
 
         if self.bil.collide_widget(self.hinder):
-            self.remove_widget(self.bil)
+            self.remove_widget(self.hinder)
+            self.nytthinder()
+
+        if not self.hinder.collide_widget(self):
+            self.remove_widget(self.hinder)
+            self.nytthinder()
 
     def knapp_ner(self, window, knapp, knappkod, text, modifierare):
         if knapp not in self.knappar:
