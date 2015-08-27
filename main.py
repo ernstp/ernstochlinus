@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from random import randint
 from kivy.config import Config
 Config.set("graphics", "fullscreen", "auto")
 from kivy.graphics import Color, Rectangle
@@ -43,20 +44,28 @@ class Sak(Widget):
 
 
 class Bil(Sak):
+    def __init__(self, *args):
+        Sak.__init__(self, *args)
+        self.hastighet = 7
+
     def flytta(self, knappar):
         for knapp in knappar:
             if knapp == vanster:
-                flytta_pos(self, -enhet * 3, 0)
+                flytta_pos(self, -enhet * self.hastighet, 0)
             if knapp == hoger:
-                flytta_pos(self, enhet * 3, 0)
+                flytta_pos(self, enhet * self.hastighet, 0)
             if knapp == upp:
-                flytta_pos(self, enhet * 0, enhet * 5)
+                flytta_pos(self, enhet * 0, enhet * self.hastighet)
             if knapp == ner:
-                flytta_pos(self, enhet * 0, enhet * -4)
+                flytta_pos(self, enhet * 0, -enhet * self.hastighet)
 
 class Hinder(Sak):
+    def __init__(self, *args):
+        Sak.__init__(self, *args)
+        self.hastighet = randint(-5,5)
+
     def flytta(self, knappar):
-        flytta_pos(self, enhet * 4, enhet * -9)
+        flytta_pos(self, enhet * self.hastighet, enhet * -6)
 
 
 class Bilspel(Widget):
@@ -79,7 +88,8 @@ class Bilspel(Widget):
     def nytthinder(self):
         bredd = self.size[0]
         hojd = self.size[1]
-        self.hinder = Hinder((bredd / 2, hojd), (100, 100), gron)
+        start=randint(0,bredd)
+        self.hinder = Hinder((start, hojd), (100, 100), gron)
         self.add_widget(self.hinder)
 
     def flytta(self, tid):
