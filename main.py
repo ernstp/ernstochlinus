@@ -13,6 +13,10 @@ vanster = Keyboard.string_to_keycode(None, "left")
 hoger = Keyboard.string_to_keycode(None, "right")
 ner = Keyboard.string_to_keycode(None, "down")
 upp = Keyboard.string_to_keycode(None, "up")
+
+gron = Color(0,1,0)
+vit =Color(1,1,1)
+
 enhet = 1
 
 
@@ -23,9 +27,10 @@ def flytta_pos(sak, sidled, hojdled):
 
 
 class Sak(Widget):
-    def __init__(self, plats, storlek):
+    def __init__(self, plats, storlek, farg):
         Widget.__init__(self)
         with self.canvas:
+            self.canvas.add(farg)
             self.rect = Rectangle(pos=self.pos, size=self.size)
         self.bind(pos=self.update_rect)
         self.bind(size=self.update_rect)
@@ -67,14 +72,14 @@ class Bilspel(Widget):
         hojd = self.size[1]
         enhet = hojd / 1000.0
         self.canvas.clear()
-        self.bil = Bil(plats=(bredd / 2, 0), storlek=(50, 100))
+        self.bil = Bil((bredd / 2, 0), (50, 100), vit)
         self.add_widget(self.bil)
         self.nytthinder()
 
     def nytthinder(self):
         bredd = self.size[0]
         hojd = self.size[1]
-        self.hinder = Hinder(plats=(bredd / 2, hojd), storlek=(100, 100))
+        self.hinder = Hinder((bredd / 2, hojd), (100, 100), gron)
         self.add_widget(self.hinder)
 
     def flytta(self, tid):
