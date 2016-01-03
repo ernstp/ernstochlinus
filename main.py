@@ -17,13 +17,13 @@ hoger = Keyboard.string_to_keycode(None, "right")
 ner = Keyboard.string_to_keycode(None, "down")
 upp = Keyboard.string_to_keycode(None, "up")
 
-gron = Color(0,1,0)
-vit =Color(1,1,1)
+gron = (0,1,0)
+vit = (1,1,1)
 
 
 def flytta_pos(sak, sidled, hojdled):
-    ny_x = sak.pos[0] + sidled
-    ny_y = sak.pos[1] + hojdled
+    ny_x = sak.x + sidled
+    ny_y = sak.y + hojdled
     sak.pos = ny_x, ny_y
 
 
@@ -31,7 +31,7 @@ class Sak(Widget):
     def __init__(self, plats, storlek, farg):
         Widget.__init__(self)
         with self.canvas:
-            self.canvas.add(farg)
+            Color(*farg)
             self.rect = Rectangle(pos=self.pos, size=self.size)
         self.bind(pos=self.update_rect)
         self.bind(size=self.update_rect)
@@ -46,7 +46,7 @@ class Sak(Widget):
 class Bil(Sak):
     def __init__(self, *args):
         Sak.__init__(self, *args)
-        self.hastighet = 7
+        self.hastighet = 8
 
     def flytta(self, knappar):
         for knapp in knappar:
@@ -62,7 +62,7 @@ class Bil(Sak):
 class Hinder(Sak):
     def __init__(self, *args):
         Sak.__init__(self, *args)
-        self.hastighet = randint(-5,5)
+        self.hastighet = randint(-5, 5)
 
     def flytta(self, knappar):
         flytta_pos(self, self.hastighet, -6)
