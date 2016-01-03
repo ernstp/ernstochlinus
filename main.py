@@ -8,6 +8,7 @@ from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.clock import Clock
 from kivy.core.window import Window, Keyboard
+from kivy.graphics.context_instructions import Scale
 
 
 vanster = Keyboard.string_to_keycode(None, "left")
@@ -17,8 +18,6 @@ upp = Keyboard.string_to_keycode(None, "up")
 
 gron = Color(0,1,0)
 vit =Color(1,1,1)
-
-enhet = 1
 
 
 def flytta_pos(sak, sidled, hojdled):
@@ -36,7 +35,7 @@ class Sak(Widget):
         self.bind(pos=self.update_rect)
         self.bind(size=self.update_rect)
         self.pos = plats
-        self.size = (storlek[0] * enhet, storlek[1] * enhet)
+        self.size = (storlek[0], storlek[1])
 
     def update_rect(self, *args):
         self.rect.pos = self.pos
@@ -51,13 +50,13 @@ class Bil(Sak):
     def flytta(self, knappar):
         for knapp in knappar:
             if knapp == vanster:
-                flytta_pos(self, -enhet * self.hastighet, 0)
+                flytta_pos(self, -self.hastighet, 0)
             if knapp == hoger:
-                flytta_pos(self, enhet * self.hastighet, 0)
+                flytta_pos(self, self.hastighet, 0)
             if knapp == upp:
-                flytta_pos(self, enhet * 0, enhet * self.hastighet)
+                flytta_pos(self, 0, self.hastighet)
             if knapp == ner:
-                flytta_pos(self, enhet * 0, -enhet * self.hastighet)
+                flytta_pos(self, 0, -self.hastighet)
 
 class Hinder(Sak):
     def __init__(self, *args):
@@ -65,7 +64,7 @@ class Hinder(Sak):
         self.hastighet = randint(-5,5)
 
     def flytta(self, knappar):
-        flytta_pos(self, enhet * self.hastighet, enhet * -6)
+        flytta_pos(self, self.hastighet, -6)
 
 
 class Bilspel(Widget):
@@ -74,22 +73,25 @@ class Bilspel(Widget):
         self.knappar = list()
         Window.bind(on_key_down=self.knapp_ner, on_key_up=self.knapp_upp)
         self.bind(size=self.rita)
+        # Bredd räknas om varje gång skärmen ändras och vid start,
+        # höjd är alltid 1000.
+        self.bredd = -1.0
+        self.hojd = 1000.0
 
     def rita(self, *args):
-        global enhet
-        bredd = self.size[0]
-        hojd = self.size[1]
-        enhet = hojd / 1000.0
         self.canvas.clear()
-        self.bil = Bil((bredd / 2, 0), (50, 100), vit)
+        skalning = float(self.height) / self.hojd
+        self.bredd = self.width / skalning
+        with self.canvas:
+            Scale(skalning)
+
+        self.bil = Bil((500, 0), (50, 100), vit)
         self.add_widget(self.bil)
         self.nytthinder()
 
     def nytthinder(self):
-        bredd = self.size[0]
-        hojd = self.size[1]
-        start=randint(0,bredd)
-        self.hinder = Hinder((start, hojd), (100, 100), gron)
+        start = randint(0, int(self.bredd))
+        self.hinder = Hinder((start, 1000), (100, 100), gron)
         self.add_widget(self.hinder)
 
     def flytta(self, tid):
