@@ -19,6 +19,7 @@ upp = Keyboard.string_to_keycode(None, "up")
 
 gron = (0,1,0)
 vit = (1,1,1)
+banan = (0,0,1)
 
 
 def flytta_pos(sak, sidled, hojdled):
@@ -90,7 +91,7 @@ class Bilspel(Widget):
         with self.canvas:
             Scale(skalning)
 
-        self.bil = Bil((500, 0), (50, 100), vit)
+        self.bil = Bil((500, 0), (50, 100), banan)
         self.add_widget(self.bil)
         self.nytthinder()
         self.info = Label(color=(1,1,1,1),
