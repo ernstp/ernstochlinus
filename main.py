@@ -9,6 +9,7 @@ from kivy.uix.widget import Widget
 from kivy.clock import Clock
 from kivy.core.window import Window, Keyboard
 from kivy.graphics.context_instructions import Scale
+from kivy.uix.label import Label
 
 
 vanster = Keyboard.string_to_keycode(None, "left")
@@ -73,6 +74,7 @@ class Bilspel(Widget):
         self.knappar = list()
         Window.bind(on_key_down=self.knapp_ner, on_key_up=self.knapp_upp)
         self.bind(size=self.rita)
+        self.poeng = 0
         # Bredd räknas om varje gång skärmen ändras och vid start,
         # höjd är alltid 1000.
         self.bredd = -1.0
@@ -88,6 +90,17 @@ class Bilspel(Widget):
         self.bil = Bil((500, 0), (50, 100), vit)
         self.add_widget(self.bil)
         self.nytthinder()
+        self.info = Label(color=(1,1,1,1),
+                          pos=(0, 950),
+                          font_size=50,
+                          halign="left")
+        self.info.bind(texture_size=self.info.setter('size'))
+
+        self.skriv_info()
+        self.add_widget(self.info)
+
+    def skriv_info(self):
+        self.info.text = "Poäng %d" % self.poeng
 
     def nytthinder(self):
         start = randint(0, int(self.bredd))
@@ -96,15 +109,22 @@ class Bilspel(Widget):
 
     def flytta(self, tid):
         for sak in self.children:
-            sak.flytta(self.knappar)
+            try:
+                sak.flytta(self.knappar)
+            except:
+                pass
 
         if self.bil.collide_widget(self.hinder):
+            self.poeng += 1
+            self.skriv_info()
             self.remove_widget(self.hinder)
             self.nytthinder()
 
         if not self.hinder.collide_widget(self):
             self.remove_widget(self.hinder)
             self.nytthinder()
+            self.poeng -= 1
+            self.skriv_info()
 
     def knapp_ner(self, window, knapp, knappkod, text, modifierare):
         if knapp not in self.knappar:
