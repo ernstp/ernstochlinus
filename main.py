@@ -66,7 +66,10 @@ class Hinder(Sak):
 
     def flytta(self, knappar):
         flytta_pos(self, self.hastighet, -6)
-
+        if self.x <= 0:
+            self.hastighet = -self.hastighet
+        if self.right >= self.parent.bredd:
+            self.hastighet = -self.hastighet
 
 class Bilspel(Widget):
     def __init__(self):
